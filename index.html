@@ -124,15 +124,37 @@ header.top{padding-top:18px;display:flex;align-items:center;justify-content:spac
 .export span{margin-right:auto}
 .btn.sm{padding:5px 12px;font-size:13px;border-radius:8px}
 .btn.sm:disabled{opacity:.45;cursor:default}
+/* Savings */
+.dash .saverow{margin-top:12px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.18);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dash .saverow span{font-size:12px;color:#a9b8b0}
+.dash .saverow b{display:block;font-family:var(--f-num);font-weight:600;font-size:15.5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.dash .saverow .sv b{color:var(--accent)}
+.link{border:0;background:none;color:var(--muted);font-family:var(--f-body);font-size:13px;font-weight:500;padding:2px 0;text-decoration:underline;text-underline-offset:3px}
+.jar{display:flex;flex-direction:column;gap:10px}
+.jar .goal{font-size:13px;color:var(--muted)}
+.jar .big{font-family:var(--f-num);font-weight:600;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.jar .big small{font-size:14px;color:var(--muted);font-weight:500}
+.track{height:12px;background:var(--sunk);border-radius:12px;overflow:hidden;position:relative}
+.track span{display:block;height:100%;border-radius:12px;background:repeating-linear-gradient(135deg,var(--accent) 0 10px,color-mix(in srgb,var(--accent) 80%,#fff) 10px 20px)}
+.jar .facts{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted)}
+.jar .facts b{color:var(--fg);font-family:var(--f-num);font-weight:500}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
 .banner{background:var(--sunk);border-radius:12px;padding:10px 12px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .banner button{border:0;background:none;color:var(--out);font-weight:600;font-size:13px;white-space:nowrap}
 
 /* Fixed add bar */
 .addbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(transparent,var(--bg) 30%);
   padding:20px max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px))}
-.addbar .in2{max-width:540px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.addbar .in2{max-width:540px;margin:0 auto;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}
 .addbar button{border:0;border-radius:14px;padding:14px 10px;font-family:var(--f-display);font-weight:700;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
-.addbar .bi{background:var(--in);color:#fff} .addbar .bo{background:var(--out);color:#fff}
+.addbar .bi{background:var(--in);color:#fff} .addbar .bo{background:var(--out);color:#fff} .addbar .bs{background:var(--accent);color:var(--accent-ink)}
+.modeseg button.on{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.typeseg button.on.dep{background:var(--accent);color:var(--accent-ink)} .typeseg button.on.wd{background:var(--fg);color:var(--bg)}
+.jar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.jar h3{margin:6px 0 0;font-size:12.5px;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.entry.sv .ico{background:color-mix(in srgb,var(--accent) 24%,transparent)}
+.entry.sv .amt .num{color:var(--fg);font-weight:600}
 
 /* Sheet */
 .scrim{position:fixed;inset:0;background:rgba(5,10,8,.5);z-index:30;display:flex;align-items:flex-end;justify-content:center}
@@ -192,6 +214,15 @@ header.top{padding-top:18px;display:flex;align-items:center;justify-content:spac
       <div><span>จำนวนงาน</span><b id="sJobs">0</b></div>
     </div>
     <div class="meta" id="meta"></div>
+    <div class="saverow" id="saveRow" hidden>
+      <div class="sv"><span id="saveLbl">หักออม</span><b id="sSave">0</b></div>
+      <div><span>เหลือใช้จ่ายได้</span><b id="sSpend">0</b></div>
+    </div>
+  </section>
+
+  <section class="card" id="saveCard">
+    <h2>เงินออม <button class="link" id="openSave">ตั้งค่าการหักออม</button></h2>
+    <div class="jar" id="jar"></div>
   </section>
 
   <section class="card" id="chartCard" hidden>
@@ -222,6 +253,7 @@ header.top{padding-top:18px;display:flex;align-items:center;justify-content:spac
 <div class="addbar"><div class="in2">
   <button class="bi" id="addIn">＋ รายรับ</button>
   <button class="bo" id="addOut">－ รายจ่าย</button>
+  <button class="bs" id="addSave" hidden>฿ ออม</button>
 </div></div>
 
 <div class="scrim" id="scrim" hidden>
@@ -240,6 +272,48 @@ header.top{padding-top:18px;display:flex;align-items:center;justify-content:spac
     <div class="field"><label class="lbl" for="f-note">หมายเหตุ</label><input id="f-note" placeholder="เช่น ปั๊มแถวบ้าน, รอบเช้า"></div>
     <div class="err" id="err"></div>
     <button class="save" type="submit" id="save">บันทึก</button>
+  </form>
+</div>
+<div class="scrim" id="sScrim" hidden>
+  <form class="sheet" id="sForm" novalidate>
+    <div class="hd"><h2>ตั้งค่าการหักออม</h2><button type="button" class="x" id="sClose" aria-label="ปิด">✕</button></div>
+    <div>
+      <span class="lbl">วิธีออม</span>
+      <div class="typeseg modeseg" role="group" aria-label="วิธีออม">
+        <button type="button" id="m-pct">หักเป็น %</button>
+        <button type="button" id="m-man">ใส่จำนวนเอง</button>
+      </div>
+      <p class="hint" id="modeHint"></p>
+    </div>
+    <div id="rateBox">
+      <span class="lbl">หักออมจากกำไรสุทธิรายวัน</span>
+      <div class="presets" id="presets"></div>
+      <div class="amtbox" style="margin-top:10px"><input id="s-rate" inputmode="decimal" autocomplete="off" placeholder="10" aria-label="เปอร์เซ็นต์หักออม"><span>%</span></div>
+      <p class="hint">หักเฉพาะวันที่มีกำไร วันที่ขาดทุนไม่หัก ตั้ง 0% เพื่อปิดการหักออม</p>
+    </div>
+    <div class="grid2">
+      <div class="field"><label class="lbl" for="s-goalName">เป้าหมายออมเพื่อ</label><input id="s-goalName" placeholder="เช่น เงินสำรอง"></div>
+      <div class="field"><label class="lbl" for="s-goal">ยอดเป้าหมาย (บาท)</label><input id="s-goal" inputmode="decimal" placeholder="เช่น 20000"></div>
+    </div>
+    <div class="err" id="sErr"></div>
+    <button class="save" type="submit" id="sSaveBtn">บันทึกการตั้งค่า</button>
+  </form>
+</div>
+<div class="scrim" id="vScrim" hidden>
+  <form class="sheet" id="vForm" novalidate>
+    <div class="hd"><h2 id="vTitle">ฝากเงินออม</h2><button type="button" class="x" id="vClose" aria-label="ปิด">✕</button></div>
+    <div class="typeseg" role="group" aria-label="ฝากหรือถอน">
+      <button type="button" id="v-dep" class="dep">ฝากเงินออม</button>
+      <button type="button" id="v-wd" class="wd">ถอนออก</button>
+    </div>
+    <div class="amtbox"><span>฿</span><input id="v-amount" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="จำนวนเงินออม"></div>
+    <div class="presets" id="vQuick"></div>
+    <div class="grid2">
+      <div class="field"><label class="lbl" for="v-date">วันที่</label><input type="date" id="v-date"></div>
+      <div class="field"><label class="lbl" for="v-note">หมายเหตุ</label><input id="v-note" placeholder="เช่น โอนเข้าบัญชีออม"></div>
+    </div>
+    <div class="err" id="vErr"></div>
+    <button class="save" type="submit" id="vSaveBtn">บันทึก</button>
   </form>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -278,17 +352,32 @@ const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y
 const todayISO = () => iso(new Date());
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
 
-let entries = [];
+let all = [], entries = [], saves = [];
+const split = () => { entries = all.filter(x => x.type === "in" || x.type === "out"); saves = all.filter(x => x.type === "save"); };
+const DEF_SET = { mode: "pct", rate: 10, goalName: "", goal: 0 };
+let settings = {...DEF_SET};
 let period = "day";
 let anchor = new Date();
 let deleting = null;
 
 /* ---------- storage: shared db (private per person) with local fallback ---------- */
 const LS_KEY = "driver-ledger-v1";
+const LS_SET = "driver-ledger-settings-v1";
 const store = {
   mode: "local", col: null,
-  loadLocal(){ try { entries = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e){ entries = []; } },
-  saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(entries)); } catch(e){} },
+  loadLocal(){
+    try { all = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e){ all = []; }
+    split();
+    try { settings = {...DEF_SET, ...JSON.parse(localStorage.getItem(LS_SET) || "{}")}; } catch(e){ settings = {...DEF_SET}; }
+  },
+  async saveSettings(s){
+    if (this.mode === "db") {
+      try { await this.col.doc("_settings").set({kind:"settings", ...s}); return; }
+      catch(err) { if (!err || err.code !== "invalid_argument") throw err; this.toLocal(); }
+    }
+    settings = {...s}; try { localStorage.setItem(LS_SET, JSON.stringify(s)); } catch(e){} render();
+  },
+  saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(all)); } catch(e){} },
   unsub: null,
   toLocal(){
     if (this.unsub) { try { this.unsub(); } catch(_){} this.unsub = null; }
@@ -299,11 +388,11 @@ const store = {
       try { await this.col.doc(e.id).set(e); return; }
       catch(err) { if (!err || err.code !== "invalid_argument") throw err; this.toLocal(); }
     }
-    entries.push(e); this.saveLocal(); render();
+    all.push(e); split(); this.saveLocal(); render();
   },
   async remove(id){
     if (this.mode === "db") { await this.col.doc(id).delete(); }
-    else { entries = entries.filter(x => x.id !== id); this.saveLocal(); render(); }
+    else { all = all.filter(x => x.id !== id); split(); this.saveLocal(); render(); }
   }
 };
 function setSync(cls, text){ const s=$("sync"); s.className="sync "+cls; s.querySelector("span").textContent=text; }
@@ -323,7 +412,10 @@ async function initStore(){
     let gotLive = false;
     const timer = setTimeout(() => { if (!gotLive) setSync("warn", "ยังเชื่อมต่อไม่ได้"); }, 10000);
     store.unsub = store.col.onSnapshot(snap => {
-      entries = snap.docs.map(d => ({...d.data(), id:d.id}));
+      const docs = snap.docs.map(d => ({...d.data(), id:d.id}));
+      const sd = docs.find(d => d.id === "_settings");
+      if (sd) { const {kind, id, ...rest} = sd; settings = {...DEF_SET, ...rest}; }
+      all = docs.filter(d => d.type === "in" || d.type === "out" || d.type === "save"); split();
       if (!snap.metadata.fromCache) { gotLive = true; clearTimeout(timer); setSync("ok", "บันทึกในบัญชีแล้ว"); }
       render();
     }, err => {
@@ -387,6 +479,17 @@ function render(){
   if (period !== "day") meta.push("วิ่ง <b>" + days + "</b> วัน");
   $("meta").innerHTML = meta.join("") || "<span>ยังไม่มีรายการในช่วงนี้</span>";
 
+  /* savings */
+  const nets = dayNets(entries);
+  const manual = settings.mode === "manual";
+  const pSave = periodSave(nets, S, E);
+  $("saveRow").hidden = !(manual || settings.rate > 0);
+  $("addSave").hidden = !manual;
+  $("saveLbl").textContent = manual ? "ออมแล้ว" : "หักออม " + fmt.format(settings.rate) + "%";
+  $("sSave").textContent = fmt.format(pSave);
+  $("sSpend").textContent = (net - pSave < 0 ? "−" : "") + fmt.format(Math.abs(Math.round((net - pSave)*100)/100));
+  renderJar(nets);
+
   /* chart */
   if (period === "day") $("chartCard").hidden = true;
   else {
@@ -444,6 +547,79 @@ function render(){
     </div>`;
   }).join("");
 }
+/* savings math: rate applies to each day's positive net only */
+function dayNets(list){
+  const m = {}; list.forEach(x => { if (x.type !== "in" && x.type !== "out") return; m[x.date] = (m[x.date]||0) + (x.type==="in"?1:-1) * x.amount; }); return m;
+}
+function saveFor(nets, S, E){
+  const r = (+settings.rate||0) / 100; let t = 0;
+  for (const d in nets) if ((!S || d >= S) && (!E || d <= E) && nets[d] > 0) t += nets[d] * r;
+  return Math.round(t*100)/100;
+}
+const saveSign = x => x.dir === "out" ? -1 : 1;
+function manualSave(S, E){
+  let t = 0; saves.forEach(x => { if ((!S || x.date >= S) && (!E || x.date <= E)) t += saveSign(x) * x.amount; });
+  return Math.round(t*100)/100;
+}
+function periodSave(nets, S, E){ return settings.mode === "manual" ? manualSave(S, E) : saveFor(nets, S, E); }
+function renderJar(nets){
+  const jar = $("jar");
+  if (settings.mode === "manual") { renderJarManual(nets); return; }
+  if (!(settings.rate > 0)) {
+    jar.innerHTML = `<div class="empty" style="padding:8px 0"><b>ยังไม่ได้ตั้งการหักออม</b>ตั้งเปอร์เซ็นต์ที่จะกันไว้จากกำไรทุกวัน แอปจะบอกว่าควรเก็บเท่าไหร่</div>`;
+    return;
+  }
+  const total = saveFor(nets);
+  const t = todayISO(), from30 = iso(addDays(new Date(), -29));
+  const last30 = saveFor(nets, from30, t);
+  const activeDays = Object.keys(nets).filter(d => d >= from30 && d <= t).length;
+  const perDay = activeDays ? last30 / activeDays : 0;
+  const goal = +settings.goal || 0;
+  const name = settings.goalName ? esc(settings.goalName) : "เงินออม";
+  let html = `<div class="goal">${name} · หัก ${fmt.format(settings.rate)}% จากกำไรรายวัน</div>`;
+  if (goal > 0) {
+    const pct = Math.min(100, total / goal * 100);
+    const left = Math.max(0, goal - total);
+    html += `<div class="big">${money(total)} <small>/ ${money(goal)}</small></div>
+      <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><span style="width:${pct}%"></span></div>
+      <div class="facts"><span>คืบหน้า <b>${Math.floor(pct)}%</b></span>${left > 0 ? `<span>อีก <b>${money(left)}</b></span>` : `<span><b>ถึงเป้าหมายแล้ว</b></span>`}
+      ${left > 0 && perDay > 0 ? `<span>ประมาณ <b>${Math.ceil(left / perDay)}</b> วันที่วิ่ง</span>` : ""}</div>`;
+  } else {
+    html += `<div class="big">${money(total)} <small>ออมสะสม</small></div>
+      <div class="facts"><span>ตั้งยอดเป้าหมายได้ที่ "ตั้งค่าการหักออม"</span></div>`;
+  }
+  if (perDay > 0) html += `<div class="facts"><span>เฉลี่ย 30 วันล่าสุด <b>${money(perDay)}</b> ต่อวันที่วิ่ง</span></div>`;
+  jar.innerHTML = html;
+}
+function goalHTML(total, perDay){
+  const goal = +settings.goal || 0;
+  if (!(goal > 0)) return `<div class="big">${total<0?"−":""}${money(Math.abs(total))} <small>ยอดออมสะสม</small></div>`;
+  const pct = Math.max(0, Math.min(100, total / goal * 100)); const left = Math.max(0, goal - total);
+  return `<div class="big">${money(total)} <small>/ ${money(goal)}</small></div>
+    <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><span style="width:${pct}%"></span></div>
+    <div class="facts"><span>คืบหน้า <b>${Math.floor(pct)}%</b></span>${left > 0 ? `<span>อีก <b>${money(left)}</b></span>` : `<span><b>ถึงเป้าหมายแล้ว</b></span>`}
+    ${left > 0 && perDay > 0 ? `<span>ประมาณ <b>${Math.ceil(left / perDay)}</b> วันที่ออม</span>` : ""}</div>`;
+}
+function renderJarManual(nets){
+  const total = manualSave();
+  const t = todayISO(), from30 = iso(addDays(new Date(), -29));
+  const depDays = new Set(saves.filter(x => x.date >= from30 && x.date <= t && x.dir !== "out").map(x => x.date)).size;
+  const perDay = depDays ? Math.max(0, manualSave(from30, t)) / depDays : 0;
+  const [s, e] = range(); const S = iso(s), E = iso(e);
+  const rows = saves.filter(x => x.date >= S && x.date <= E).sort((a,b) => a.date === b.date ? (b.ts||0)-(a.ts||0) : (a.date < b.date ? 1 : -1));
+  const name = settings.goalName ? esc(settings.goalName) : "เงินออม";
+  let html = `<div class="goal">${name} · ใส่จำนวนเอง</div>` + goalHTML(total, perDay);
+  if (perDay > 0) html += `<div class="facts"><span>เฉลี่ย 30 วันล่าสุด <b>${money(perDay)}</b> ต่อวันที่ออม</span></div>`;
+  html += `<div class="acts"><button class="btn primary" data-act="dep">＋ ฝากเงินออม</button><button class="btn" data-act="wd">ถอนออก</button></div>`;
+  html += `<h3>รายการออมช่วงนี้</h3>`;
+  html += rows.length ? `<div>${rows.map(x => `<div class="entry sv"><div class="ico">${x.dir==="out"?"↩️":"🐷"}</div>
+      <div class="txt"><b>${x.dir==="out"?"ถอนเงินออม":"ฝากเงินออม"}${x.sample?'<span class="tag">ตัวอย่าง</span>':""}</b><small>${esc([parse(x.date).toLocaleDateString("th-TH",{weekday:"short",day:"numeric",month:"short"}), x.note||""].filter(Boolean).join(" · "))}</small></div>
+      <div class="amt"><span class="num">${x.dir==="out"?"−":"+"}${fmt.format(x.amount)}</span>
+      <button class="del${deleting===x.id?" confirm":""}" data-id="${x.id}">${deleting===x.id?"ยืนยันลบ":"ลบ"}</button></div></div>`).join("")}</div>`
+    : `<div style="color:var(--muted);font-size:13px">ยังไม่มีรายการออมในช่วงนี้ กด "ฝากเงินออม" หรือปุ่ม ฿ ออม ด้านล่าง</div>`;
+  $("jar").innerHTML = html;
+}
+
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 $("list").addEventListener("click", async ev => {
@@ -519,6 +695,89 @@ $("clearSample").onclick = async () => {
   try { for (const id of ids) await store.remove(id); toast("ลบข้อมูลตัวอย่างแล้ว"); } catch(e) { toast("ลบไม่สำเร็จ ลองอีกครั้ง"); }
 };
 
+/* ---------- savings settings sheet ---------- */
+const PRESETS = [0, 5, 10, 15, 20, 30];
+function paintPresets(){
+  const v = parseFloat($("s-rate").value);
+  $("presets").innerHTML = PRESETS.map(p => `<button type="button" class="chip" data-r="${p}" aria-pressed="${v===p}">${p===0?"ไม่หัก":p+"%"}</button>`).join("");
+}
+let sMode = "pct";
+function paintMode(){
+  $("m-pct").classList.toggle("on", sMode === "pct"); $("m-man").classList.toggle("on", sMode === "manual");
+  $("rateBox").hidden = sMode !== "pct";
+  $("modeHint").textContent = sMode === "pct" ? "แอปคำนวณยอดออมจากกำไรรายวันให้อัตโนมัติ" : "กดปุ่ม ฿ ออม แล้วใส่จำนวนที่เก็บจริงเองทุกครั้ง ถอนออกได้ด้วย";
+}
+$("m-pct").onclick = () => { sMode = "pct"; paintMode(); };
+$("m-man").onclick = () => { sMode = "manual"; paintMode(); };
+$("presets").addEventListener("click", ev => { const b = ev.target.closest(".chip"); if (!b) return; $("s-rate").value = b.dataset.r; paintPresets(); });
+$("s-rate").addEventListener("input", paintPresets);
+$("openSave").onclick = () => {
+  $("s-rate").value = settings.rate; $("s-goalName").value = settings.goalName || ""; $("s-goal").value = settings.goal || "";
+  sMode = settings.mode === "manual" ? "manual" : "pct"; paintMode();
+  $("sErr").textContent = ""; paintPresets(); $("sScrim").hidden = false;
+};
+const closeS = () => { $("sScrim").hidden = true; };
+$("sClose").onclick = closeS;
+$("sScrim").addEventListener("click", ev => { if (ev.target === $("sScrim")) closeS(); });
+document.addEventListener("keydown", ev => { if (ev.key==="Escape" && !$("sScrim").hidden) closeS(); });
+$("sForm").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const rateRaw = String($("s-rate").value).replace(/,/g,"").trim();
+  const rate = rateRaw === "" && sMode === "manual" ? settings.rate : parseFloat(rateRaw);
+  if (!(rate >= 0 && rate <= 100)) { $("sErr").textContent = "ใส่เปอร์เซ็นต์ระหว่าง 0 ถึง 100"; return; }
+  const goalRaw = String($("s-goal").value).replace(/,/g,"").trim();
+  const goal = goalRaw ? parseFloat(goalRaw) : 0;
+  if (!(goal >= 0)) { $("sErr").textContent = "ยอดเป้าหมายต้องเป็นตัวเลข"; return; }
+  const next = { mode: sMode, rate: Math.round(rate*10)/10, goalName: $("s-goalName").value.trim().slice(0,40), goal: Math.round(goal) };
+  $("sSaveBtn").disabled = true;
+  try { await store.saveSettings(next); settings = next; render(); closeS(); toast(next.mode === "manual" ? "ตั้งเป็นใส่จำนวนออมเองแล้ว" : next.rate > 0 ? "ตั้งหักออม " + next.rate + "% แล้ว" : "ปิดการหักออมแล้ว"); }
+  catch(e) { $("sErr").textContent = "บันทึกไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง"; }
+  finally { $("sSaveBtn").disabled = false; }
+});
+
+/* ---------- manual savings sheet ---------- */
+let vDir = "in";
+function openSaveSheet(dir){
+  vDir = dir; $("v-amount").value = ""; $("v-note").value = ""; $("vErr").textContent = "";
+  const a = iso(anchor); $("v-date").value = a > todayISO() ? todayISO() : a; $("v-date").max = todayISO();
+  paintSaveSheet(); $("vScrim").hidden = false; setTimeout(() => $("v-amount").focus(), 60);
+}
+function paintSaveSheet(){
+  $("v-dep").classList.toggle("on", vDir === "in"); $("v-wd").classList.toggle("on", vDir === "out");
+  $("vTitle").textContent = vDir === "in" ? "ฝากเงินออม" : "ถอนเงินออม";
+  $("vQuick").innerHTML = [20, 50, 100, 200, 500].map(v => `<button type="button" class="chip" data-v="${v}">${v}</button>`).join("");
+}
+$("vQuick").addEventListener("click", ev => { const b = ev.target.closest(".chip"); if (!b) return; $("v-amount").value = b.dataset.v; });
+$("v-dep").onclick = () => { vDir = "in"; paintSaveSheet(); };
+$("v-wd").onclick = () => { vDir = "out"; paintSaveSheet(); };
+const closeV = () => { $("vScrim").hidden = true; };
+$("vClose").onclick = closeV;
+$("vScrim").addEventListener("click", ev => { if (ev.target === $("vScrim")) closeV(); });
+document.addEventListener("keydown", ev => { if (ev.key==="Escape" && !$("vScrim").hidden) closeV(); });
+$("vForm").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const amount = parseFloat(String($("v-amount").value).replace(/,/g,""));
+  if (!(amount > 0)) { $("vErr").textContent = "ใส่จำนวนเงินที่มากกว่า 0"; $("v-amount").focus(); return; }
+  if (vDir === "out" && amount > manualSave() + 1e-9) { $("vErr").textContent = "ถอนได้ไม่เกินยอดออมที่มี " + money(manualSave()); return; }
+  const date = $("v-date").value || todayISO();
+  const entry = { id: "v" + Date.now().toString(36) + Math.random().toString(36).slice(2,6), type: "save", dir: vDir,
+    amount: Math.round(amount*100)/100, date, note: $("v-note").value.trim().slice(0,120), ts: Date.now() };
+  $("vSaveBtn").disabled = true;
+  try { await store.add(entry); closeV(); anchor = parse(date); render(); toast((vDir==="in"?"ฝากออม ":"ถอนออม ") + money(entry.amount)); }
+  catch(e) { $("vErr").textContent = "บันทึกไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองอีกครั้ง"; }
+  finally { $("vSaveBtn").disabled = false; }
+});
+$("jar").addEventListener("click", async ev => {
+  const act = ev.target.closest("[data-act]");
+  if (act) { openSaveSheet(act.dataset.act === "wd" ? "out" : "in"); return; }
+  const b = ev.target.closest(".del"); if (!b) return;
+  const id = b.dataset.id;
+  if (deleting !== id) { deleting = id; render(); return; }
+  deleting = null;
+  try { await store.remove(id); toast("ลบแล้ว"); } catch(e) { toast("ลบไม่สำเร็จ ลองอีกครั้ง"); render(); }
+});
+$("addSave").onclick = () => openSaveSheet("in");
+
 /* ---------- controls ---------- */
 document.querySelectorAll(".seg button").forEach(b => b.onclick = () => { period = b.dataset.p; deleting=null; render(); });
 $("prev").onclick = () => shift(-1);
@@ -531,20 +790,30 @@ let downloads = null;
 const csvCell = v => { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
 function buildCSV(rows){
   const head = ["วันที่","ประเภท","หมวด","จำนวนเงิน","จำนวนงาน","หมายเหตุ"];
-  const body = rows.slice().sort((a,b)=> a.date===b.date ? (a.ts||0)-(b.ts||0) : (a.date<b.date?-1:1)).map(x => [
+  const body = rows.slice().sort((a,b)=> a.date===b.date ? (a.ts||0)-(b.ts||0) : (a.date<b.date?-1:1)).map(x => x.type === "save" ? [
+    x.date, x.dir==="out"?"ถอนเงินออม":"ฝากเงินออม", "เงินออม", saveSign(x)*x.amount, "", (x.sample?"[ตัวอย่าง] ":"") + (x.note||"")
+  ] : [
     x.date, x.type==="in"?"รายรับ":"รายจ่าย", CATMAP[x.cat]?.n || x.cat,
     (x.type==="in"?1:-1)*x.amount, x.type==="in" ? (x.jobs||0) : "", (x.sample?"[ตัวอย่าง] ":"") + (x.note||"")
   ]);
   const tin = rows.filter(x=>x.type==="in").reduce((a,x)=>a+ +x.amount,0);
   const tout = rows.filter(x=>x.type==="out").reduce((a,x)=>a+ +x.amount,0);
   body.push([], ["","รวมรายรับ","",tin], ["","รวมรายจ่าย","",-tout], ["","กำไรสุทธิ","",Math.round((tin-tout)*100)/100]);
+  if (settings.mode === "manual") {
+    const sv = Math.round(rows.filter(x=>x.type==="save").reduce((a,x)=>a+saveSign(x)*x.amount,0)*100)/100;
+    body.push(["","ออมสุทธิ (ฝาก-ถอน)","",sv], ["","เหลือใช้จ่าย","",Math.round((tin-tout-sv)*100)/100]);
+  } else if (settings.rate > 0) {
+    const sv = saveFor(dayNets(rows));
+    body.push(["","หักออม " + settings.rate + "%","",sv], ["","เหลือใช้จ่าย","",Math.round((tin-tout-sv)*100)/100]);
+  }
   return "﻿" + [head, ...body].map(r => r.map(csvCell).join(",")).join("\r\n");
 }
 async function exportCSV(all){
   if (!downloads) return;
   let rows, name;
-  if (all) { rows = entries; name = "รายรับรายจ่าย-ทั้งหมด-" + todayISO() + ".csv"; }
-  else { const [s,e] = range(); const S=iso(s), E=iso(e); rows = entries.filter(x => x.date>=S && x.date<=E); name = "รายรับรายจ่าย-" + (S===E ? S : S + "_" + E) + ".csv"; }
+  const pool = settings.mode === "manual" ? [...entries, ...saves] : entries;
+  if (all) { rows = pool; name = "รายรับรายจ่าย-ทั้งหมด-" + todayISO() + ".csv"; }
+  else { const [s,e] = range(); const S=iso(s), E=iso(e); rows = pool.filter(x => x.date>=S && x.date<=E); name = "รายรับรายจ่าย-" + (S===E ? S : S + "_" + E) + ".csv"; }
   if (!rows.length) { toast("ไม่มีรายการให้ส่งออก"); return; }
   try {
     await downloads.save({ filename: name, data: buildCSV(rows) });
